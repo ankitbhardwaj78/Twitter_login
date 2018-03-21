@@ -1,34 +1,22 @@
-import React,{ Component } from 'react';
-import ReactDOM from 'react-dom';
-import { HTTP } from 'meteor/http';
-import TwitterLogin from "../../ui/TwitterLogin";
-
-export default class App extends Component{
-  constructor(props){
-    super(props);
-  }
-
-  // login(){
-  //   Meteor.call("create.popup",(err,res)=> {
-  //     if(err)
-  //     console.log(err);
-  //     else {
-  //       console.log(res);
-  //     }
-  //   });
-  //   // HTTP.call("post","https://api.twitter.com/oauth/authenticate?oauth_callback=http://localhost:3000");
-  // }
-
-  render(){
-
-    return(
-<div>
-      <TwitterLogin />
-</div>
-    )
-  }
+import React, {Component} from 'react'
+import ReactDOM from 'react-dom'
+import { Session } from 'meteor/session'
+import TwitterLogin from '../../ui/TwitterLogin'
+import Signup from '../../ui/Signup';
+import { Tokens } from '../../api/tokens';
+export default class App extends Component {
+	constructor(props){
+		super(props);
+	}
+	render() {
+		return(
+			<div>
+			<TwitterLogin />
+			</div>
+		)
+	}
 }
 
-Meteor.startup(() => {
-  ReactDOM.render(<App />,document.querySelector(".render-target"));
+Meteor.startup( () => {
+	ReactDOM.render(<App />, document.querySelector('.render-target'))
 });

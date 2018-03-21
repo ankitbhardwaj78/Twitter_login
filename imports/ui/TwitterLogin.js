@@ -1,34 +1,88 @@
-import React, { Component } from "react";
+import React, {Component} from 'react'
+import ReactDOM from 'react-dom'
+import { Session } from 'meteor/session'
+import { withTracker } from "meteor/react-meteor-data";
+import Signup from './Signup';
+import { Tokens } from '../api/tokens';
 
-class TwitterLogin extends Component {
-  constructor(props) {
+class TwitterLogin extends Component{
+  constructor(props){
     super(props);
-    this.state = { err: "", token: 0 };
     this.twitterLogin = this.twitterLogin.bind(this);
   }
 
-  twitterLogin() {
-    Meteor.call("twitter_sign_in", (err, res) => {
-      if(err) {
-        console.log("err : ", err);
-      } else {
-        console.log("res : ", res);
-        this.redirectAnchor.href = `https://api.twitter.com/oauth/authenticate?oauth_token=${res}`;
-        this.redirectAnchor.click();
-      }
-    });
+
+  componentWillReceiveProps(nextProps) {
+    console.log("this props",this.props);
+    console.log("next props",nextProps);
   }
 
+  twitterLogin() {
+    Meteor.call("get_request_token", (err, res) => {
+      if(err)
+      console.log(err)
+      else{
+        console.log(res)
+        Meteor.call("tokens.insert",res,this.props.userId,(err,res)=>{
+          if(err)
+          console.log("not saved");
+          else {
+            console.log("saved successfully");
+          }
+        })
+        Session.set('responds', res.secret)
+        // console.log(Session)
+        this.anchor.href = `https://api.twitter.com/oauth/authenticate?oauth_token=${res.token}`
+        res = this.anchor.click();
+      }
+    })
+  }
   render() {
-    return (
-      <div>
-        <button onClick={this.twitterLogin}>Twitter Login</button>
-        <a style={{ display: "none" }} href="#"
-          ref={el => { this.redirectAnchor = el; }}>
-        </a>
-      </div>
-    );
+    if(!this.props.userId)
+    {
+      return <Signup />
+    }
+    else{
+      console.log(this.props.tokens);
+      if(this.props.tokens && this.props.tokens[0] && this.props.tokens[0].access_token)
+      {
+        return(
+          <div>
+          <button>follow</button>
+          </div>
+        )
+      }
+      else{
+        return(
+          <div>
+          <button onClick = {this.twitterLogin.bind(this)}>Login with Twitter</button>
+          <a style = {{ display: "none" }} href="#"
+          ref = {el => {this.anchor = el; }}>
+          </a>
+          </div>
+        )
+      }
+    }
   }
 }
 
-export default TwitterLogin;
+
+export default withTracker( (props) => {
+  let dataloaded;
+  let tokens;
+  let userId = Meteor.userId();
+  let test1=Session.get("test1");
+  const tokenSubHandle = Meteor.subscribe("tokens");
+  dataloaded = tokenSubHandle.ready();
+  if(tokenSubHandle.ready())
+  {
+    tokens =Tokens.find().fetch();
+  }
+
+  return {
+    dataloaded,
+    tokens,
+    test1,
+    userId
+  };
+} )(TwitterLogin);

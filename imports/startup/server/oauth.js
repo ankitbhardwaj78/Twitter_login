@@ -1,28 +1,44 @@
-import { OAuth } from "oauth";
+import { OAuth } from 'oauth';
 
-const twitterConsumerKey = "toQ8aXyGvTyRRNwTF7KKzrCGs";
-const twitterConsumerSecret = "NMkTwca6R2wis27Lz2dyHiJ4SMG6fwtV84isgim7KWj6OWgYL9";
+const consumerKey = 'gRVg8FedIrQJEvhFncYyflRJ7';
+const consumerSecret = 'ZAQKCqoUHpe8SzasjBY4Eav8l3pbXSkXUMEFxtlgYhDPbWIS5R';
 
 const oauthClient = new OAuth("https://twitter.com/oauth/request_token",
 	"https://twitter.com/oauth/access_token",
-	twitterConsumerKey, twitterConsumerSecret,
-	"1.0A", "http://localhost:3000/twitter/callback",
+	consumerKey, consumerSecret,
+	"1.0A", "http://localhost:3000",
 	"HMAC-SHA1"
-);
+	);
 
 export const getOAuthRequestToken = () => {
-console.log("tt",oauthClient._authorize_callback);
-	return new Promise( ( resolve, reject ) => {
-		oauthClient.getOAuthRequestToken(function(err, token, secret, results) {
-			if (err) {
-				return reject(err);
+	return new Promise((resolve, reject) => {
+		oauthClient.getOAuthRequestToken(function(err, token, secret, result) {
+			if(err){
+				console.log(err)
+				return reject(err)
 			}
-			console.log("resolving");
 			resolve({
 				token,
 				secret,
-        results
-			});
-		});
-	});
+				result
+			})
+		})
+	})
+}
+
+export const getOAuthAccessToken = (oauth_request_token, oauth_request_token_secret, oauth_verifier) => {
+	return new Promise((resolve, reject) => {
+		oauthClient.getOAuthAccessToken(oauth_request_token, oauth_request_token_secret, oauth_verifier, function(error, oauth_access_token, oauth_access_token_secret) {
+			if(error){
+				console.log("error", error)
+				return reject(error)
+			}
+			// console.log('oauth_access_token', oauth_access_token)
+			// console.log('oauth_access_token_secret', oauth_access_token_secret)
+			resolve({
+				oauth_access_token,
+				oauth_access_token_secret
+			})
+		})
+	})
 }
