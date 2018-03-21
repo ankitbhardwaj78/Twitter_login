@@ -1,0 +1,17 @@
+{
+  "name": "twitter_login",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0-beta.36",
+    "crypto": "^1.0.1",
+    "faker": "^4.1.0",
+    "meteor-node-stubs": "^0.3.2",
+    "oauth": "^0.9.15",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "request": "^2.85.0"
+  }
+}
