@@ -13,6 +13,7 @@
     "react": "^16.2.0",
     "react-addons-pure-render-mixin": "^15.6.2",
     "react-dom": "^16.2.0",
-    "request": "^2.85.0"
+    "request": "^2.85.0",
+    "twit": "^2.2.9"
   }
 }

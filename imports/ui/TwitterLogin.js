@@ -4,7 +4,7 @@ import { Session } from 'meteor/session'
 import { withTracker } from "meteor/react-meteor-data";
 import Signup from './Signup';
 import { Tokens } from '../api/tokens';
-
+import TwitterData from './TwitterData';
 class TwitterLogin extends Component{
   constructor(props){
     super(props);
@@ -47,9 +47,7 @@ class TwitterLogin extends Component{
       if(this.props.tokens && this.props.tokens[0] && this.props.tokens[0].access_token)
       {
         return(
-          <div>
-          <button>follow</button>
-          </div>
+          <TwitterData />
         )
       }
       else{

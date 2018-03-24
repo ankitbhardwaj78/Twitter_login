@@ -3,8 +3,7 @@ import { HTTP } from 'meteor/http'
 import { getOAuthRequestToken } from './oauth'
 import { getOAuthAccessToken } from './oauth'
 import { Tokens } from '../../api/tokens'
-let oauth_request_token, oauth_request_token_secret
-
+import get_twiiter_data from './TwitterConfig'
 Meteor.methods({
 	async "get_request_token"(){
 		let res;
@@ -29,7 +28,9 @@ Meteor.methods({
 				{
 					$set:{
 						"access_token":res.oauth_access_token,
-						"access_token_secret":res.oauth_access_token_secret
+						"access_token_secret":res.oauth_access_token_secret,
+						"inUse":false,
+						"nextResetlimit":((new Date().getTime()))
 					}})
 				}catch(err) {
 					console.log('error', error)
@@ -38,4 +39,52 @@ Meteor.methods({
 				return res;
 			},
 
-		})
+
+			async "get_followers"(screen_name,userId){
+				let tokens = Meteor.call("find_free_token");
+				console.log("tokens",tokens);
+				let next_cursor = -1
+				if(tokens)
+				{
+					let appConfig = get_twiiter_data(tokens.access_token,tokens.access_token_secret);
+					while(next_cursor!=0)
+					{
+						console.log(tokens);
+						try{
+							let res = await appConfig.get('followers/list', { screen_name: screen_name , count : 200 ,cursor : next_cursor});
+							if(res.resp.caseless.dict['x-rate-limit-remaining']==0)
+							{
+							 Tokens.update(
+									{ token : tokens.token},
+									{
+										$set:{
+											inUse:false,
+											nextResetlimit:res.resp.caseless.dict['x-rate-limit-reset']*1000
+										}
+									}
+								)
+								tokens = Meteor.call("find_free_token");
+								if(tokens )
+								{
+									appConfig =  get_twiiter_data(tokens.access_token,tokens.access_token_secret);
+									next_cursor = res.data.next_cursor;
+								}
+								else {
+									next_cursor =0;
+								}
+							}
+							else{
+								next_cursor = res.data.next_cursor;
+							}
+						}catch(err) {
+							console.log('error', error)
+							throw new Meteor.Error("error")
+						}
+					}
+					console.log("running")
+				}
+				else {
+					console.log("finished");
+				}
+			}
+		});
