@@ -1,8 +1,10 @@
 import React,{Component} from "react";
+import Table from './Table';
+
 export default class TwitterData extends Component{
   constructor(props){
     super(props);
-    this.state={value:""}
+    this.state={value:"",data:""}
   }
 
   search(){
@@ -11,6 +13,9 @@ export default class TwitterData extends Component{
       console.log(err);
       else{
         console.log(res);
+        this.setState({
+           data:res
+        })
       }
     })
   }
@@ -36,6 +41,7 @@ export default class TwitterData extends Component{
       onChange={this.onchange.bind(this)}
       />
       <button className="btn btn-outline-success my-2 my-sm-0" onClick = {this.search.bind(this)}>Search</button>
+      <Table data={this.state.data}/>
       </div>
     )
   }

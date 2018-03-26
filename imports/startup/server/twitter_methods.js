@@ -44,6 +44,7 @@ Meteor.methods({
 				let tokens = Meteor.call("find_free_token");
 				console.log("tokens",tokens);
 				let next_cursor = -1
+        let follower = []
 				if(tokens)
 				{
 					let appConfig = get_twiiter_data(tokens.access_token,tokens.access_token_secret);
@@ -52,9 +53,19 @@ Meteor.methods({
 						console.log(tokens);
 						try{
 							let res = await appConfig.get('followers/list', { screen_name: screen_name , count : 200 ,cursor : next_cursor});
+            console.log("left",res.resp.caseless.dict['x-rate-limit-remaining'])
+							if(res.data && res.data.users){
+								res.data.users.forEach(function(user){
+									follower.push({
+										"followername":user.name,
+										"follower_count":user.followers_count,
+										"friends_count":user.friends_count
+									})
+								})
+							}
 							if(res.resp.caseless.dict['x-rate-limit-remaining']==0)
 							{
-							 Tokens.update(
+								Tokens.update(
 									{ token : tokens.token},
 									{
 										$set:{
@@ -81,10 +92,10 @@ Meteor.methods({
 							throw new Meteor.Error("error")
 						}
 					}
-					console.log("running")
+					return follower
 				}
 				else {
-					console.log("finished");
+					return follower
 				}
 			}
 		});
